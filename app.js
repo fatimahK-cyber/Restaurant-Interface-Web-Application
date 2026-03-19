@@ -39,7 +39,7 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
+/*
 const connection = mysql.createConnection({
   host: process.env.DB_HOSTNAME,
   user: process.env.USER_ID,
@@ -59,5 +59,6 @@ connection.query('SELECT 1 + 1 AS solution', (err, rows, fields) => {
 });
 
 connection.end();
+*/
 
 module.exports = app;
