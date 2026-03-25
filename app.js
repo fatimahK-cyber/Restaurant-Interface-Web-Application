@@ -4,34 +4,36 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const mysql = require('mysql');
+//const flash = require('express-flash-notification');
+//const session = require('express-session');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var orderRouter = require('./routes/order');
 
 var app = express();
 require('dotenv').config()
 
-// view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+//app.use(cookieParser());
+//app.use(flash(app));
+app.use(express.static(path.join(__dirname, 'public'))); /* Built-in middleware to serve static files from the 'public' directory. */
 app.use('/css', express.static(path.join(__dirname, '/node_modules/bootstrap/dist/css')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/order', orderRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -40,7 +42,7 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-/*
+
 const connection = mysql.createConnection({
   host: process.env.DB_HOSTNAME,
   user: process.env.USER_ID,
@@ -51,7 +53,13 @@ const connection = mysql.createConnection({
   }
 });
 
-connection.connect();
+connection.connect((err) => {
+  if (err) {
+    console.error('Error connecting to the database: ', err);
+    return;
+  }
+  console.log('Connected to the database.');
+});
 
 connection.query('SELECT 1 + 1 AS solution', (err, rows, fields) => {
   if (err) throw err
@@ -60,6 +68,6 @@ connection.query('SELECT 1 + 1 AS solution', (err, rows, fields) => {
 });
 
 connection.end();
-*/
+
 
 module.exports = app;

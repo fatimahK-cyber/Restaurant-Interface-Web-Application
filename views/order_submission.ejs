@@ -8,13 +8,21 @@ Customize and submit orders here.
     <div class="row">
         <div class="offset-md-3 col-md-6 text-center">
             <h1><%= title %></h1>
-            <form class="form" method="POST" action="">
+            <form class="form" method="POST" action="/order">
                 <div class="form-group">
-                    <label for="prioritySelect">Pick-up or delivery</label>
-                    <select name="Priority" id="prioritySelect" class="form-select mb-2" required>
+                    <label for="typeSelect">Pick-up or delivery</label>
+                    <select name="Type" id="typeSelect" class="form-select mb-2" required>
                         <option value="" disabled selected>Select option</option>
                         <option value="Pick-up">Pick-up</option>
                         <option value="Delivery">Delivery</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="entreesSelect">Entrees</label>
+                    <select name="Entrees" id="entreesSelect" class="form-select mb-2" required>
+                        <option value="" disabled selected>Select option</option>
+                        <option value="Pick-up"></option>
+                        <option value="Delivery"></option>
                     </select>
                 </div>
                 <div class="form-group">
