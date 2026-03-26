@@ -4,8 +4,8 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const mysql = require('mysql');
-//const flash = require('express-flash-notification');
-//const session = require('express-session');
+const flash = require('express-flash-notification');
+const session = require('express-session');
 
 var indexRouter = require('./routes/index');
 var orderRouter = require('./routes/order');
@@ -19,8 +19,13 @@ app.set('view engine', 'ejs');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-//app.use(cookieParser());
-//app.use(flash(app));
+app.use(cookieParser());
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true
+}));
+app.use(flash(app));
 app.use(express.static(path.join(__dirname, 'public'))); /* Built-in middleware to serve static files from the 'public' directory. */
 app.use('/css', express.static(path.join(__dirname, '/node_modules/bootstrap/dist/css')));
 

@@ -11,13 +11,12 @@ router.post('/', (req, res, next) => {
 });
 
 router.post('/', (req, res, next) => {
-    console.log('Displaying flash message');
+    req.flash('success', 'Your order has been submitted successfully!');
     res.redirect('/order/management');
   });
 
-
 router.get('/management', (req, res, next) => {
-  res.render('order_manager', { title: 'Manage Orders' });
+    res.render('order_manager', { title: 'Manage Orders' });
 });
 
 router.patch('/management', (req, res, next) => {
