@@ -9,6 +9,7 @@ const session = require('express-session');
 
 var indexRouter = require('./routes/index');
 var orderRouter = require('./routes/order');
+var menuRouter = require('./routes/menu');
 
 var app = express();
 require('dotenv').config()
@@ -31,6 +32,7 @@ app.use('/css', express.static(path.join(__dirname, '/node_modules/bootstrap/dis
 
 app.use('/', indexRouter);
 app.use('/order', orderRouter);
+app.use('/menu', menuRouter); 
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
