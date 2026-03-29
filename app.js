@@ -7,6 +7,8 @@ const mysql = require('mysql');
 //const flash = require('express-flash-notification');
 //const session = require('express-session');
 
+console.log('APP FILE LOADED FROM:', __dirname);
+
 var indexRouter = require('./routes/index');
 var orderRouter = require('./routes/order');
 

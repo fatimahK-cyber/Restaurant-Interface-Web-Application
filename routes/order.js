@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
+console.log('ORDER ROUTES FILE LOADED FROM:', __filename);
+
 router.get('/', (req, res, next) => {
   res.render('order_submission', { title: 'Make an Order' });
 });
@@ -23,5 +25,14 @@ router.get('/management', (req, res, next) => {
 router.patch('/management', (req, res, next) => {
     console.log('Received order update: ', req.body);
 }); 
+
+router.get('/track', (req, res, next) => {
+  console.log('HIT /order/track');
+  res.send('TRACK PAGE WORKS');
+});
+
+router.get('/confirmation', (req, res, next) => {
+  res.render('order_confirmation', { title: 'Order Confirmation' });
+});
 
 module.exports = router;
