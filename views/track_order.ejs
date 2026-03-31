@@ -1,21 +1,31 @@
 <%- include('partials/header') %>
 <%- include('partials/navbar') %>
 
-<div class="container mt-5">
-    <div class="row">
-        <div class="offset-md-3 col-md-6 text-center">
-            <h1>Track Your Order</h1>
-            <p>Enter your order ID below to check the status of your order.</p>
+<div class="container mt-5 text-center">
+    <h1>Track Your Order</h1>
+    <p>Check the current status of your order below.</p>
 
-            <form>
-                <div class="form-group mb-3">
-                    <label for="orderIdField">Order ID</label>
-                    <input type="text" class="form-control" id="orderIdField" placeholder="Enter your order ID">
-                </div>
-                <button class="btn btn-primary" type="submit">Track Order</button>
-            </form>
+    <% if (message) { %>
+        <div class="alert alert-warning mt-3">
+            <%= message %>
         </div>
-    </div>
+    <% } %>
+
+    <% if (order) { %>
+        <div class="card mt-4 mx-auto text-start" style="max-width: 500px;">
+            <div class="card-body">
+                <h4>Order Details</h4>
+                <p><strong>Order ID:</strong> <%= order.Order_ID %></p>
+                <p><strong>Status:</strong> <%= order.Status %></p>
+                <% if (order.Order_Type) { %>
+                    <p><strong>Order Type:</strong> <%= order.Order_Type %></p>
+                <% } %>
+                <% if (order.Entree) { %>
+                    <p><strong>Entree:</strong> <%= order.Entree %></p>
+                <% } %>
+            </div>
+        </div>
+    <% } %>
 </div>
 
 <%- include('partials/footer') %>
