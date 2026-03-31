@@ -1,6 +1,7 @@
 <a href="/menu">Our Menu</a>
 <a href="/order">Order Now</a>
-<a href="/manage">Manage Orders</a>
-<%- locals.flash %>
+<% if (locals.flash) { %>
+  <%- locals.flash %>
+<% } %>
 <a href="/order/track">Track Order</a>
 <a href="/order/management">Manage Orders</a>
