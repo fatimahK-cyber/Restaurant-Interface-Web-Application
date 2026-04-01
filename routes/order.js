@@ -5,12 +5,48 @@ const connection = require('../db');
 
 console.log('ORDER ROUTES FILE LOADED FROM:', __filename);
 
+router.use((req, res, next) => {
+  console.log(`Received ${req.method} request for ${req.url} at ${new Date().toISOString()}`);
+  next();
+}); 
+
+/* Middleware function to fetch menu items and their categories from the database, and store in req.context for downstream handlers */
+function get_menu_items(req, res, next) {
+  const get_menu_items_query = 'SELECT mi.Name AS Name, c.Name AS Category, mi.Menu_Item_ID AS Item_ID FROM Menu_Item AS mi JOIN Category AS c ON mi.Category_ID = c.Category_ID;';
+
+  connection.query(get_menu_items_query, (err, result) => {
+    if (err) {
+      console.error('Error fetching menu items:', err);
+      return next(err);
+    }
+    console.log('Fetched menu items:', result);
+    
+    if (req.context?.orderId != undefined) {
+      req.context = { menu_items: result, order_id: req.context.orderId};
+    } else {
+      req.context = { menu_items: result };
+    }
+
+    return next();
+  });
+}
+
+/*
+GET /order middleware chain:
+1) Fetch menu items and their categories from the database
+2) Render order submission page with menu items and categories
+*/
+router.get('/', get_menu_items);
+
 router.get('/', (req, res, next) => {
-  res.render('order_submission', { title: 'Make an Order' });
+  res.render('order_submission', { 
+    title: 'Make an Order',
+    menu_items: req.context.menu_items 
+  });
 });
 
 /* 
-Order submission middleware chain:
+POST /order middleware chain:
 1) Check customer existance and insert if new
 2) Insert order with customer ID from step 1
 3) Fetch menu item names and IDs
@@ -105,20 +141,7 @@ router.post('/', (req, res, next) => { // Step 2: Insert order with customer ID 
   );
 });
 
-router.post('/', (req, res, next) => { // Step 3: Fetch menu item names and IDs
-    let get_menu_items_query = 'SELECT Menu_Item_ID, Name FROM menu_item';
-
-    connection.query(get_menu_items_query, (err, result) => {
-        if (err) {
-            console.log('Error getting menu items: ', err);
-            return next(err);
-        } else {
-            console.log('Menu items: ', result); 
-            req.context = { menu_items: result, order_id: req.context.orderId }; 
-            return next();
-        }
-    });
-});
+router.post('/', get_menu_items); // Step 3: Fetch menu item names and IDs
 
 router.post('/', (req, res, next) => { // Step 4: Insert order items
     let insert_order_item_query = 'INSERT INTO `order_item` (Quantity, Order_ID, Menu_Item_ID) VALUES (?, ?, ?, ?)'
