@@ -1,7 +1,10 @@
 <a href="/menu">Our Menu</a>
 <a href="/order">Order Now</a>
-<% if (locals.flash) { %>
-  <%- locals.flash %>
-<% } %>
 <a href="/order/track">Track Order</a>
-<a href="/order/management">Manage Orders</a>
+
+<% if (role === 'employee') { %>
+  <a href="/menu/management">Manage Menu</a>
+  <a href="/order/management">Manage Orders</a>
+<% } %>
+
+<a href="/">Switch Role</a>
