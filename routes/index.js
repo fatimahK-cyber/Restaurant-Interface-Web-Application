@@ -16,4 +16,10 @@ router.get('/', (req, res) => {
   res.render('index', { title: 'Restaurant Order System' });
 });
 
+router.get('/info', (req, res) => {
+  req.session.role = null;
+  res.render('info', { title: 'Customer Information' });
+});
+
+
 module.exports = router;

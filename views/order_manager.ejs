@@ -3,4 +3,43 @@
 <br>
 Manage and resolve customer orders here. 
 <br>
+
+<div class="container mt-4">
+  <h4>Manage Orders</h4>
+  <table class="table table-bordered table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>Order ID</th>
+        <th>Customer</th>
+        <th>Type</th>
+        <th>Total</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% orders.forEach(order => { %>
+        <tr>
+          <td><%= order.Order_ID %></td>
+          <td><%= order.Customer_Name %></td>
+          <td><%= order.Type %></td>
+          <td>$<%= order.Total %></td>
+          <td><%= order.Status %></td>
+          <td>
+            <form action="/order/management/<%= order.Order_ID %>" method="POST">
+              <select name="status" class="form-select form-select-sm d-inline w-auto">
+                <option>Pending</option>
+                <option>In Progress</option>
+                <option>Fulfilled</option>
+              </select>
+              <button class="btn btn-sm btn-primary">Update</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<br>
 <%- include('partials/footer') %>
