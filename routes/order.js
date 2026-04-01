@@ -22,9 +22,9 @@ function get_menu_items(req, res, next) {
     console.log('Fetched menu items:', result);
     
     if (req.context?.orderId != undefined) {
-      req.context = { menu_items: result, order_id: req.context.orderId};
+      req.context = { menuItems: result, orderId: req.context.orderId};
     } else {
-      req.context = { menu_items: result };
+      req.context = { menuItems: result };
     }
 
     return next();
@@ -41,7 +41,7 @@ router.get('/', get_menu_items);
 router.get('/', (req, res, next) => {
   res.render('order_submission', { 
     title: 'Make an Order',
-    menu_items: req.context.menu_items 
+    menu_items: req.context.menuItems 
   });
 });
 
@@ -145,19 +145,25 @@ router.post('/', get_menu_items); // Step 3: Fetch menu item names and IDs
 
 router.post('/', (req, res, next) => { // Step 4: Insert order items
     let insert_order_item_query = 'INSERT INTO `order_item` (Quantity, Order_ID, Menu_Item_ID) VALUES (?, ?, ?, ?)'
-    
-    selected_item_names = Object.keys(req.body.Items); 
-    console.log('Menu item names: ', selected_item_names);
-    
-    for (const [item_name, quantity] of Object.entries(req.body.Items)) {
-        for (const menu_item of req.context.menu_items) {
-            if (menu_item.Name === item_name && quantity > 0) {
-                console.log(`Inserting ${quantity} order(s) of ${item_name} with ID ${menu_item.Menu_Item_ID} into order ID ${req.context.order_id}`);
-                // SQL query to insert order item here, using req.context.order_id and menu_item.Menu_Item_ID
-            }
+    console.log('Inserting order items for order ID:', req.context.orderId);
+    console.log(req.body);
+
+    for (let i = 0; i < req.context.menuItems.length; i++) {
+      for (let j = 0; j < req.body['ItemName[]'].length; j++) {
+        if (req.context.menuItems[i].Name === req.body['ItemName[]'][j]) {
+          console.log(`Inserting ${req.body['ItemQty[]'][j]} order(s) of ${req.body['ItemName[]'][j]} with ID ${req.context.menuItems[i].Item_ID} into order ID ${req.context.orderId}`);
+          // MySQL insert for order item goes here.
         }
+      }
     }
+
+    return next(); 
 });
+
+router.post('/', (req, res, next) => { // Step 5: Redirect to confirmation page
+  console.log('Finalizing order with ID:', req.context.orderId);
+  res.redirect('/'); // Temporary redirect to home page for testing - replace with confirmation page in production
+}); 
 
 // GET manage orders page
 router.get('/management', (req, res, next) => {
