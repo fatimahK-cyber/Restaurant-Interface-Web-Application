@@ -114,13 +114,12 @@ router.post('/', (req, res, next) => { // Step 2: Insert order with customer ID 
   const customerId = req.context.customerId;
   console.log('Processing order for customer ID:', customerId);
 
-  let order = {
-        customerId: customerId,
-        type: req.body.Type,
-        status: 'Pending',
-        creation_timestamp: new Date()
-  };
-
+let order = {
+      customerId: customerId,
+      type: req.body.OrderType,
+      status: 'Pending',
+      creation_timestamp: new Date()
+};
   const insertOrderQuery = "INSERT INTO `order` (Customer_ID, Type, Status, Creation_Timestamp) VALUES (?, ?, ?, ?)";
 
   connection.query(
@@ -132,6 +131,7 @@ router.post('/', (req, res, next) => { // Step 2: Insert order with customer ID 
         return next(err); 
       } 
       const orderId = result.insertId;
+      req.session.lastOrderId = orderId;
       console.log('Inserted order with ID:', orderId);
 
       //res.redirect(`/order/confirmation?orderId=${orderId}`);
@@ -167,14 +167,30 @@ router.post('/', (req, res, next) => { // Step 4: Insert order items
 
 router.post('/', (req, res, next) => { // Step 5: Redirect to confirmation page
   console.log('Finalizing order with ID:', req.context.orderId);
-  res.redirect('/'); // Temporary redirect to home page for testing - replace with confirmation page in production
+ res.redirect(`/order/confirmation?orderId=${req.context.orderId}`);
 }); 
 
 // GET manage orders page
 router.get('/management', (req, res, next) => {
-  res.render('order_manager', { title: 'Manage Orders' });
-});
+  const query = `
+    SELECT o.Order_ID, o.Type, o.Status, o.Creation_Timestamp, c.Name, c.Email, c.Phone
+    FROM \`order\` o
+    JOIN customer c ON o.Customer_ID = c.Customer_ID
+    ORDER BY o.Creation_Timestamp DESC
+  `;
 
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching orders for management:', err);
+      return next(err);
+    }
+
+    res.render('order_manager', {
+      title: 'Manage Orders',
+      orders: results
+    });
+  });
+});
 // PATCH specific order
 router.patch('/management/:orderId', (req, res, next) => {
   console.log('Update order:', req.params);
@@ -195,17 +211,17 @@ router.patch('/management', (req, res, next) => {
 
 // GET track order page + optional lookup
 router.get('/track', (req, res, next) => {
-  const orderId = req.query.orderId;
+  const orderId = req.query.orderId || req.session.lastOrderId;
 
   if (!orderId) {
     return res.render('track_order', {
       title: 'Track Order',
       order: null,
-      message: null
+      message: 'No order found yet. Please place an order first.'
     });
   }
 
-  const query = 'SELECT * FROM orders WHERE Order_ID = ?';
+ const query = 'SELECT * FROM `order` WHERE Order_ID = ?';
 
   connection.query(query, [orderId], (err, results) => {
     if (err) {
@@ -240,7 +256,7 @@ router.get('/confirmation', (req, res, next) => {
     });
   }
 
-  const query = 'SELECT * FROM orders WHERE Order_ID = ?';
+ const query = 'SELECT * FROM `order` WHERE Order_ID = ?';
 
   connection.query(query, [orderId], (err, results) => {
     if (err) {
