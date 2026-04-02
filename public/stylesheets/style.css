@@ -1,8 +1,328 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* =========================
+   GLOBAL
+========================= */
+* {
+    box-sizing: border-box;
+}
+
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background: #fffaf7;
+    color: #1f2937;
 }
 
 a {
-  color: #00B7FF;
+    text-decoration: none;
+}
+
+.container {
+    max-width: 1100px;
+}
+
+/* =========================
+   LANDING PAGE
+========================= */
+.landing-page {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at top left, #ffe7db 0%, transparent 35%),
+        radial-gradient(circle at bottom right, #ffd9c7 0%, transparent 35%),
+        linear-gradient(135deg, #fffaf7 0%, #fff3ec 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+}
+
+.modern-hero {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.hero-card {
+    width: 100%;
+    max-width: 760px;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid #ffe2d2;
+    border-radius: 32px;
+    padding: 56px 40px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(238, 120, 73, 0.10);
+    backdrop-filter: blur(8px);
+}
+
+.hero-badge {
+    display: inline-block;
+    background: #fff1ea;
+    color: #e96f3c;
+    border: 1px solid #ffd8c6;
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 22px;
+}
+
+.hero-title {
+    margin: 0 0 14px;
+    font-size: 4rem;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    font-weight: 800;
+    color: #1f2937;
+}
+
+.hero-subtitle {
+    margin: 0 0 30px;
+    font-size: 1.1rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.hero-actions {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.hero-actions-secondary {
+    margin-bottom: 0;
+}
+
+.hero-form {
+    margin: 0;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 190px;
+    padding: 14px 24px;
+    border-radius: 16px;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    transition: all 0.22s ease;
+    cursor: pointer;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-primary-modern {
+    background: linear-gradient(135deg, #ff8a5b 0%, #ef6c3d 100%);
+    color: #ffffff;
+    box-shadow: 0 12px 24px rgba(239, 108, 61, 0.20);
+}
+
+.btn-primary-modern:hover {
+    color: #ffffff;
+    box-shadow: 0 16px 28px rgba(239, 108, 61, 0.25);
+}
+
+.btn-primary-soft {
+    background: #fff1ea;
+    color: #e96f3c;
+    border: 1px solid #ffd8c6;
+}
+
+.btn-primary-soft:hover {
+    background: #ffe7db;
+    color: #dd6432;
+}
+
+.btn-secondary-modern {
+    background: #ffffff;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 8px 20px rgba(17, 24, 39, 0.04);
+}
+
+.btn-secondary-modern:hover {
+    background: #fff7f3;
+    color: #1f2937;
+    border-color: #ffd6c4;
+}
+
+/* =========================
+   NAVBAR
+========================= */
+nav,
+.navbar {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #f3e3d9;
+    border-radius: 18px;
+    padding: 14px 18px;
+    margin: 18px auto 0;
+    box-shadow: 0 8px 24px rgba(17, 24, 39, 0.04);
+    width: calc(100% - 40px);
+    max-width: 1200px;
+}
+
+nav a,
+.navbar a {
+    color: #5b6472;
+    font-weight: 600;
+    margin-right: 18px;
+}
+
+nav a:hover,
+.navbar a:hover {
+    color: #ef6c3d;
+}
+
+/* =========================
+   FORMS
+========================= */
+label,
+.form-label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.form-control,
+select,
+input {
+    border-radius: 16px !important;
+    border: 1px solid #eadfd8 !important;
+    padding: 12px 14px !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+}
+
+.form-control:focus,
+select:focus,
+input:focus {
+    border-color: #ffb38f !important;
+    box-shadow: 0 0 0 0.2rem rgba(239, 108, 61, 0.12) !important;
+}
+
+/* =========================
+   ORDER PAGE
+========================= */
+.order-item-row {
+    background: #ffffff;
+    padding: 14px;
+    border-radius: 20px;
+    box-shadow: 0 10px 24px rgba(17, 24, 39, 0.05);
+    margin-bottom: 12px;
+    border: 1px solid #f4e7df;
+}
+
+.line-total-display,
+#grandTotal {
+    background-color: #fff7f3 !important;
+    font-weight: 700;
+}
+
+#grandTotal {
+    font-size: 18px;
+    color: #e96f3c;
+    border: 1px solid #ffd8c6 !important;
+}
+
+/* =========================
+   MENU PAGE
+========================= */
+.menu-section {
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 24px;
+    box-shadow: 0 12px 28px rgba(17, 24, 39, 0.05);
+    margin-bottom: 22px;
+    border: 1px solid #f4e7df;
+}
+
+.menu-section h2 {
+    margin-bottom: 14px;
+    color: #1f2937;
+    font-size: 1.8rem;
+}
+
+.menu-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-section li {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f6ebe5;
+}
+
+.menu-section li:last-child {
+    border-bottom: none;
+}
+
+/* =========================
+   CARDS / CONTENT
+========================= */
+.card {
+    border: 1px solid #f4e7df;
+    border-radius: 22px;
+    box-shadow: 0 12px 28px rgba(17, 24, 39, 0.05);
+}
+
+.card-body {
+    padding: 24px;
+}
+
+/* =========================
+   FOOTER
+========================= */
+footer {
+    margin-top: 36px;
+    padding: 18px;
+    text-align: center;
+    color: #7b7280;
+    background: transparent;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+    .hero-card {
+        padding: 40px 22px;
+        border-radius: 24px;
+    }
+
+    .hero-title {
+        font-size: 2.7rem;
+        line-height: 1.1;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .btn {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .hero-actions {
+        width: 100%;
+    }
+
+    nav a,
+    .navbar a {
+        display: inline-block;
+        margin-bottom: 10px;
+    }
 }
