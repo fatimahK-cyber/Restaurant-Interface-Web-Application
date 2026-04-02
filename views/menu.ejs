@@ -1,33 +1,20 @@
 <%- include('partials/header') %>
 <%- include('partials/navbar') %>
-<h4>Starters</h4>
-<ul>
-    <li>Shrimp cocktail - $12.99</li>
-    <li>French onion soup - $8.99</li>
-    <li>Mushroom platter - $10.99</li>
-</ul>
 
-<h4>Entrees</h4>
-<ul>
-    <li>Fillet mignon - $24.99</li>
-    <li>Grilled salmon - $22.99</li>
-    <li>Linguini pasta - $18.99</li>
-</ul>
-
-<h4>Desserts</h4>
-<ul>
-    <li>Creme brule - $6.99</li>
-    <li>Honey cake - $5.99</li>
-    <li>Royal custard - $4.99</li>
-</ul>
-
-<h4>Drinks</h4>
-<ul>
-    <li>Coke - $2.99</li>
-    <li>Coke (diet) - $2.99</li>
-    <li>Sprite - $2.99</li>
-    <li>Iced tea - $2.99</li>
-    <li>Bottled water - $1.99</li>
-</ul>
-<br>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10 text-center">
+            <h1 class="text-center mb-4"><%= title %></h1>
+                <% for (let i = 0; i < categories.length; i++) { %>
+                    <h3><%= categories[i].Name %>s</h3>
+                        <% for (let j = 0; j < menuItems.length; j++) { %>
+                            <% if (menuItems[j].Category_ID == categories[i].Category_ID) { %>
+                                <h5><%= menuItems[j].Name %> - $<%= menuItems[j].Price.toFixed(2) %></h5>
+                            <% } %>
+                        <% } %>
+                        <br>
+                <% } %>
+        </div>
+    </div>
+</div>
 <%- include('partials/footer') %>
