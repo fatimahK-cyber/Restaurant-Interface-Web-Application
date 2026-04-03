@@ -33,6 +33,7 @@ router.get('/', (req, res, next) => { // Step 2: Fetch menu items and their cate
 
 });
 
+// GET menu management page
 router.get('/management', (req, res, next) => {
     res.render('menu_manager', { title: 'Manage Menu' });
 }); 

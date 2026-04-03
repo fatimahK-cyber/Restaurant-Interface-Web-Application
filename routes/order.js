@@ -81,13 +81,13 @@ router.post('/', (req, res, next) => { // Step 1: Check customer existance and i
 
         if (results.length == 0) {
           const insertCustomerQuery = `
-            INSERT INTO customer (name, email, phone) 
-            VALUES (?, ?, ?)
+            INSERT INTO customer (name, email, phone, address) 
+            VALUES (?, ?, ?, ?)
           `;
 
           return connection.query(
             insertCustomerQuery,
-            [customer.name, customer.email, customer.phone],
+            [customer.name, customer.email, customer.phone, customer.address],
             (err, result) => {
               if (err) {
                 console.error('Error inserting new customer:', err);

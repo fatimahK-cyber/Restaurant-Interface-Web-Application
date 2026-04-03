@@ -2,9 +2,6 @@
 <%- include('partials/navbar') %>
 <br>
 
-display customer info here from database. 
-<br>
-
 <div class="container mt-4">
   <h4>Customer Information</h4>
   <table class="table table-bordered table-hover">
@@ -14,17 +11,19 @@ display customer info here from database.
         <th>Name</th>
         <th>Email</th>
         <th>Phone</th>
+        <th>Address</th>
       </tr>
     </thead>
     <tbody>
       <% customers.forEach(customer => { %>
         <tr>
-          <td><%= customer.User_ID %></td>
+          <td><%= customer.Customer_ID %></td>
           <td><%= customer.Name %></td>
           <td><%= customer.Email %></td>
           <td><%= customer.Phone %></td>
+          <td><%= customer.Address %></td>
         </tr>
-      <% }) %>
+      <% }) %> 
     </tbody>
   </table>
 </div>
