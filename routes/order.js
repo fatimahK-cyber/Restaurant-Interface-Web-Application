@@ -134,7 +134,6 @@ let order = {
       req.session.lastOrderId = orderId;
       console.log('Inserted order with ID:', orderId);
 
-      //res.redirect(`/order/confirmation?orderId=${orderId}`);
       req.context.orderId = orderId;
       return next();
     }
@@ -191,10 +190,64 @@ router.get('/management', (req, res, next) => {
     });
   });
 });
-// PATCH specific order
+
+/*
+PATCH order middleware chain:
+1) Fetch the employee names and their IDs from the database and store in req.context for downstream handlers.
+2) Update order status in the database based on order ID from URL parameter, new status from the request body, and assigned employee name from the request body
+3) Update the completion timestamp if status is changed to "Completed"
+4) Render management page with updated order list
+*/
+router.patch('/management/:orderId', (req, res, next) => { // Step 1: Fetch the employee names and their IDs from the database and store in req.context for downstream handlers.
+  const get_employees_query = `SELECT Name, Employee_ID FROM employee WHERE Name=${req.body.employee};`;
+  connection.query(get_employees_query, (err, result) => {
+    if (err) {
+      console.error('Error fetching employee:', err);
+      return next(err);
+    } 
+    req.context = { employees: result };
+    console.log('Fetched employee for order management:', result);
+    return next();
+  });
+});
+
 router.patch('/management/:orderId', (req, res, next) => {
-  console.log('Update order:', req.params);
-  res.send('Order update route works');
+  const orderId = req.params.orderId;  
+  console.log(`Received update for order ID ${orderId}`);
+
+  const newStatus = req.body.status;
+  const assignedEmployee = req.body.employee;
+  console.log(`Updating order ID ${orderId} to new status: ${newStatus}`);
+  console.log(`Assigning employee ${assignedEmployee} with ID ${req.context.employees[0].Employee_ID} to order ID ${orderId}`);
+  
+  
+  const updateOrderQuery = 'UPDATE `order` SET Status = ?, Employee_ID = ? WHERE Order_ID = ?';
+
+  connection.query(updateOrderQuery, [newStatus, req.context.employees[0].Employee_ID, orderId], (err, result) => {
+    if (err) {
+      console.error('Error updating order:', err);
+      return next(err);
+    }
+    console.log(`Order ID ${orderId} updated successfully with new status: ${newStatus} and assigned employee ID: ${req.context.employees[0].Employee_ID}`);
+    return next();
+  });
+  
+});
+
+router.patch('/management/:orderId', (req, res, next) => { // Step 3: Update the completion timestamp if status is changed to "Completed"
+  const orderId = req.params.orderId;
+  if(req.body.status == 'Completed') {
+    const updateCompletionTimestampQuery = 'UPDATE `order` SET Completion_Timestamp = ? WHERE Order_ID = ?';
+
+    connection.query(updateCompletionTimestampQuery, [new Date(), orderId], (err, result) => {
+      if (err) {
+        console.error('Error updating completion timestamp:', err);
+        return next(err);
+      }
+      console.log(`Order ID ${orderId} marked as completed with completion timestamp updated.`);
+      return next();
+    });
+  }
 });
 
 // DELETE specific order
