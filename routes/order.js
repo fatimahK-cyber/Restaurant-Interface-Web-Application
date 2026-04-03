@@ -288,13 +288,16 @@ router.patch('/management/:orderId', (req, res, next) => { // Step 4: Render man
 // DELETE specific order
 router.delete('/management/:orderId', (req, res, next) => {
   console.log('Delete order:', req.params);
-  res.send('Order delete route works');
-});
+  const deleteOrderQuery = 'DELETE FROM `order` WHERE Order_ID = ?';
 
-// PATCH management page
-router.patch('/management', (req, res, next) => {
-  console.log('Received order update:', req.body);
-  res.send('Management patch works');
+  connection.query(deleteOrderQuery, [req.params.orderId], (err, result) => {
+    if (err) {
+      console.error('Error deleting order:', err);
+      return next(err);
+    }
+    console.log(`Order ID ${req.params.orderId} deleted successfully.`);
+    return res.sendStatus(200);
+  });
 });
 
 // GET track order page + optional lookup
