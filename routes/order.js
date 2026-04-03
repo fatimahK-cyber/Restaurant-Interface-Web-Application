@@ -169,27 +169,58 @@ router.post('/', (req, res, next) => { // Step 5: Redirect to confirmation page
  res.redirect(`/order/confirmation?orderId=${req.context.orderId}`);
 }); 
 
-// GET manage orders page
-router.get('/management', (req, res, next) => {
-  const query = `
-    SELECT o.Order_ID, o.Type, o.Status, o.Creation_Timestamp, c.Name, c.Email, c.Phone
-    FROM \`order\` o
-    JOIN customer c ON o.Customer_ID = c.Customer_ID
-    ORDER BY o.Creation_Timestamp DESC
-  `;
+/*
+GET /order/management middleware chain:
+1) Fetch the order ID, order item names, order item quantity, order type, order status, creation timestamps, completion timestamp, customer name, and employee name for all orders from the database
+2) Calculate the total cost for each order 
+2) Render the order management page with the order data from step 1
+*/
+router.get('/management', (req, res, next) => { // Step 1: Fetch the order ID, order item names, order types, order status, creation timestamps, completion timestamp, customer name, and employee name for all orders from the database
+  const get_order_information_query = `SELECT o.Order_ID AS Order_ID, o.Status AS Status, o.Type AS Type, o.Creation_Timestamp AS Creation_Timestamp, o.Completion_Timestamp AS Completion_Timestamp, c.Name AS Customer_Name, oi.Quantity AS Quantity, mi.Name AS Menu_Item, e.Name AS Employee_Name, mi.Price AS Price
+    FROM \`order\` AS o
+    JOIN order_item AS oi
+    ON oi.Order_ID = o.Order_ID
+    JOIN customer AS c
+    ON c.Customer_ID = o.Customer_ID
+    JOIN Menu_Item AS mi
+    ON mi.Menu_Item_ID = oi.Menu_Item_ID LEFT JOIN Employee AS e
+    ON e.Employee_ID = o.Employee_ID;`;
 
-  connection.query(query, (err, results) => {
+  connection.query(get_order_information_query, (err, results) => {
     if (err) {
       console.error('Error fetching orders for management:', err);
       return next(err);
     }
-
-    res.render('order_manager', {
-      title: 'Manage Orders',
-      orders: results
-    });
+    req.context = { orders: results };
+    console.log('Fetched orders for management:', results);
+    return next();
   });
 });
+
+router.get('/management', (req, res, next) => { // Step 2: Calculate the total cost for each order
+  const get_order_totals_query = `SELECT SUM(oi.Quantity * mi.Price) AS Order_Total, o.Order_ID AS Order_ID FROM \`order\` AS o JOIN order_item AS oi JOIN Menu_Item AS mi ON o.Order_ID = oi.Order_ID AND oi.Menu_Item_ID = mi.Menu_Item_ID GROUP BY o.Order_ID;`;
+  
+  connection.query(get_order_totals_query, (err, results) => {
+    if (err) {
+      console.error('Error fetching order totals for management:', err);
+      return next(err);
+    }  
+    let orders = req.context.orders;
+    req.context = { orders: orders, orderTotals: results };
+    console.log('Fetched order totals for management:', results);
+    return next();
+  });
+
+});
+
+router.get('/management', (req, res, next) => { // Step 3: Render the order management page with the order data from step 1
+  res.render('order_manager', {
+    title: 'Manage Orders',
+    orders: req.context.orders,
+    orderTotals: req.context.orderTotals
+  });
+});
+
 
 /*
 PATCH order middleware chain:
@@ -211,7 +242,7 @@ router.patch('/management/:orderId', (req, res, next) => { // Step 1: Fetch the 
   });
 });
 
-router.patch('/management/:orderId', (req, res, next) => {
+router.patch('/management/:orderId', (req, res, next) => { // Step 2: Update order status in the database based on order ID from URL parameter, new status from the request body, and assigned employee name from the request body
   const orderId = req.params.orderId;  
   console.log(`Received update for order ID ${orderId}`);
 
@@ -248,6 +279,10 @@ router.patch('/management/:orderId', (req, res, next) => { // Step 3: Update the
       return next();
     });
   }
+});
+
+router.patch('/management/:orderId', (req, res, next) => { // Step 4: Render management page with updated order list
+  res.redirect('/order/management');
 });
 
 // DELETE specific order
