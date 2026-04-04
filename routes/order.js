@@ -214,7 +214,7 @@ router.get('/management', (req, res, next) => { // Step 2: Calculate the total c
 
 });
 
-/* fixed the total appearing, by merging the order totals with the orders in req.context before rendering the page */
+/* step 3: fixed the total appearing, by merging the order totals with the orders in req.context before rendering the page */
 
 router.get('/management', (req, res, next) => {
   let orders = req.context.orders;
@@ -243,77 +243,51 @@ PATCH order middleware chain:
 3) Update the completion timestamp if status is changed to "Completed"
 4) Render management page with updated order list
 */
-router.patch('/management/:orderId', (req, res, next) => { // Step 1: Fetch the employee names and their IDs from the database and store in req.context for downstream handlers.
-  const get_employees_query = `SELECT Name, Employee_ID FROM employee WHERE Name=${req.body.employee};`;
+router.post('/management/:orderId', (req, res, next) => { // Step 1: Fetch employee
+  const get_employees_query = 'SELECT Name, Employee_ID FROM employee LIMIT 1';
   connection.query(get_employees_query, (err, result) => {
     if (err) {
       console.error('Error fetching employee:', err);
       return next(err);
-    } 
+    }
     req.context = { employees: result };
-    console.log('Fetched employee for order management:', result);
     return next();
   });
 });
 
-router.patch('/management/:orderId', (req, res, next) => { // Step 2: Update order status in the database based on order ID from URL parameter, new status from the request body, and assigned employee name from the request body
-  const orderId = req.params.orderId;  
-  console.log(`Received update for order ID ${orderId}`);
-
+router.post('/management/:orderId', (req, res, next) => { // Step 2: Update order status
+  const orderId = req.params.orderId;
   const newStatus = req.body.status;
-  const assignedEmployee = req.body.employee;
-  console.log(`Updating order ID ${orderId} to new status: ${newStatus}`);
-  console.log(`Assigning employee ${assignedEmployee} with ID ${req.context.employees[0].Employee_ID} to order ID ${orderId}`);
-  
-  
-  const updateOrderQuery = 'UPDATE `order` SET Status = ?, Employee_ID = ? WHERE Order_ID = ?';
 
+  const updateOrderQuery = 'UPDATE `order` SET Status = ?, Employee_ID = ? WHERE Order_ID = ?';
   connection.query(updateOrderQuery, [newStatus, req.context.employees[0].Employee_ID, orderId], (err, result) => {
     if (err) {
       console.error('Error updating order:', err);
       return next(err);
     }
-    console.log(`Order ID ${orderId} updated successfully with new status: ${newStatus} and assigned employee ID: ${req.context.employees[0].Employee_ID}`);
     return next();
   });
-  
 });
 
-router.patch('/management/:orderId', (req, res, next) => { // Step 3: Update the completion timestamp if status is changed to "Completed"
+router.post('/management/:orderId', (req, res, next) => { // Step 3: Update completion timestamp if completed
   const orderId = req.params.orderId;
-  if(req.body.status == 'Completed') {
+  if (req.body.status == 'Completed') {
     const updateCompletionTimestampQuery = 'UPDATE `order` SET Completion_Timestamp = ? WHERE Order_ID = ?';
-
     connection.query(updateCompletionTimestampQuery, [new Date(), orderId], (err, result) => {
       if (err) {
         console.error('Error updating completion timestamp:', err);
         return next(err);
       }
-      console.log(`Order ID ${orderId} marked as completed with completion timestamp updated.`);
       return next();
     });
+  } else {
+    return next();
   }
 });
 
-router.patch('/management/:orderId', (req, res, next) => { // Step 4: Render management page with updated order list
+router.post('/management/:orderId', (req, res, next) => { // Step 4: Redirect back to management page
   res.redirect('/order/management');
 });
-
-// DELETE specific order
-router.delete('/management/:orderId', (req, res, next) => {
-  console.log('Delete order:', req.params);
-  const deleteOrderQuery = 'DELETE FROM `order` WHERE Order_ID = ?';
-
-  connection.query(deleteOrderQuery, [req.params.orderId], (err, result) => {
-    if (err) {
-      console.error('Error deleting order:', err);
-      return next(err);
-    }
-    console.log(`Order ID ${req.params.orderId} deleted successfully.`);
-    return res.sendStatus(200);
-  });
-});
-
 // GET track order page + optional lookup
 router.get('/track', (req, res, next) => {
   const orderId = req.query.orderId || req.session.lastOrderId;
