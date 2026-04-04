@@ -143,15 +143,16 @@ let order = {
 router.post('/', get_menu_items); // Step 3: Fetch menu item names and IDs
 
 router.post('/', (req, res, next) => { // Step 4: Insert order items
+    let itemNames = [].concat(req.body['ItemName[]']);
+    let itemQtys = [].concat(req.body['ItemQty[]']);
     let insert_order_item_query = 'INSERT INTO `order_item` (Quantity, Order_ID, Menu_Item_ID) VALUES (?, ?, ?)'
     console.log('Inserting order items for order ID:', req.context.orderId);
     console.log(req.body);
 
     for (let i = 0; i < req.context.menuItems.length; i++) {
-      for (let j = 0; j < req.body['ItemName[]'].length; j++) {
-        if (req.context.menuItems[i].Name === req.body['ItemName[]'][j]) {
-          console.log(`Inserting ${req.body['ItemQty[]'][j]} order(s) of ${req.body['ItemName[]'][j]} with ID ${req.context.menuItems[i].Item_ID} into order ID ${req.context.orderId}`);
-          connection.query(insert_order_item_query, [req.body['ItemQty[]'][j], req.context.orderId, req.context.menuItems[i].Item_ID], (err, result) => {
+      for (let j = 0; j < itemNames.length; j++) {
+        if (req.context.menuItems[i].Name === itemNames[j]) {
+          connection.query(insert_order_item_query, [itemQtys[j], req.context.orderId, req.context.menuItems[i].Item_ID], (err, result) => {
             if (err) {
               console.error('Error inserting order item:', err);
               return next(err);
