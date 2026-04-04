@@ -177,15 +177,9 @@ GET /order/management middleware chain:
 2) Render the order management page with the order data from step 1
 */
 router.get('/management', (req, res, next) => { // Step 1: Fetch the order ID, order item names, order types, order status, creation timestamps, completion timestamp, customer name, and employee name for all orders from the database
-  const get_order_information_query = `SELECT o.Order_ID AS Order_ID, o.Status AS Status, o.Type AS Type, o.Creation_Timestamp AS Creation_Timestamp, o.Completion_Timestamp AS Completion_Timestamp, c.Name AS Customer_Name, oi.Quantity AS Quantity, mi.Name AS Menu_Item, e.Name AS Employee_Name, mi.Price AS Price
+  const get_order_information_query = `SELECT o.Order_ID, c.Name AS Customer_Name, o.Type, o.Status
     FROM \`order\` AS o
-    JOIN order_item AS oi
-    ON oi.Order_ID = o.Order_ID
-    JOIN customer AS c
-    ON c.Customer_ID = o.Customer_ID
-    JOIN Menu_Item AS mi
-    ON mi.Menu_Item_ID = oi.Menu_Item_ID LEFT JOIN Employee AS e
-    ON e.Employee_ID = o.Employee_ID;`;
+    JOIN customer AS c ON o.Customer_ID = c.Customer_ID;`;
 
   connection.query(get_order_information_query, (err, results) => {
     if (err) {
