@@ -213,14 +213,27 @@ router.get('/management', (req, res, next) => { // Step 2: Calculate the total c
 
 });
 
-router.get('/management', (req, res, next) => { // Step 3: Render the order management page with the order data from step 1
+/* fixed the total appearing, by merging the order totals with the orders in req.context before rendering the page */
+
+router.get('/management', (req, res, next) => {
+  let orders = req.context.orders;
+  let totals = req.context.orderTotals;
+
+  for (let i = 0; i < orders.length; i++) {
+    for (let j = 0; j < totals.length; j++) {
+      if (orders[i].Order_ID === totals[j].Order_ID) {
+        orders[i].Total = parseFloat(totals[j].Order_Total).toFixed(2);
+        break;
+      }
+    }
+  }
+
   res.render('order_manager', {
     title: 'Manage Orders',
-    orders: req.context.orders,
-    orderTotals: req.context.orderTotals
+    orders: orders,
+    orderTotals: totals
   });
 });
-
 
 /*
 PATCH order middleware chain:
