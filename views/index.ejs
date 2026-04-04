@@ -1,33 +1,29 @@
 <%- include('partials/header') %>
 
-<div class="landing-page">
-    <section class="modern-hero">
-        <div class="hero-card">
-            <div class="hero-badge">Fast • Fresh • Easy</div>
+<div class="landing-page-box">
+    <section class="box-hero">
+        <div class="box-hero-left">
+            <div class="mini-badge">Fast • Fresh • Easy</div>
+            <h1 class="box-title">Restaurant Order System</h1>
+            <p class="box-subtitle">Fresh food delivered to your door</p>
 
-            <h1 class="hero-title">Restaurant Order System</h1>
-            <p class="hero-subtitle">Fresh food delivered to your door</p>
-
-            <div class="hero-actions">
+            <div class="box-actions">
                 <form action="/set-role" method="POST" class="hero-form">
-                    <button type="submit" name="role" value="customer" class="btn btn-primary-modern">
+                    <button type="submit" name="role" value="customer" class="btn-box-primary">
                         I’m a Customer
                     </button>
                 </form>
 
                 <form action="/set-role" method="POST" class="hero-form">
-                    <button type="submit" name="role" value="employee" class="btn btn-secondary-modern">
+                    <button type="submit" name="role" value="employee" class="btn-box-secondary">
                         I’m an Employee
                     </button>
                 </form>
             </div>
+        </div>
 
-            <div class="hero-actions hero-actions-secondary">
-                <a href="/order" class="btn btn-primary-soft">Order Now</a>
-                <a href="/menu" class="btn btn-secondary-modern">View Menu</a>
-            </div>
+        <div class="box-hero-right">
+            <img src="/images/takeout-box.png" alt="Takeout box" class="takeout-box-image">
         </div>
     </section>
 </div>
-
-<%- include('partials/footer') %>

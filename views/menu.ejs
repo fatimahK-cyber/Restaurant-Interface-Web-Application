@@ -1,20 +1,74 @@
 <%- include('partials/header') %>
 <%- include('partials/navbar') %>
 
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-10 text-center">
-            <h1 class="text-center mb-4"><%= title %></h1>
-                <% for (let i = 0; i < categories.length; i++) { %>
-                    <h3><%= categories[i].Name %>s</h3>
-                        <% for (let j = 0; j < menuItems.length; j++) { %>
-                            <% if (menuItems[j].Category_ID == categories[i].Category_ID) { %>
-                                <h5><%= menuItems[j].Name %> - $<%= menuItems[j].Price.toFixed(2) %></h5>
+<div class="menu-page">
+    <div class="menu-hero">
+        <p class="menu-badge">Fresh • Handpicked • Delicious</p>
+        <h1 class="menu-title"><%= title %></h1>
+        <p class="menu-subtitle">Explore our selection of appetizers, entrees, desserts, and drinks.</p>
+
+        <a href="/order" class="menu-order-btn">Order Now</a>
+    </div>
+
+    <div class="menu-list">
+        <% const desiredOrder = ['entree', 'starter', 'appetizer', 'dessert', 'drink']; %>
+
+        <% for (let d = 0; d < desiredOrder.length; d++) { %>
+            <% for (let i = 0; i < categories.length; i++) { %>
+                <% const categoryName = categories[i].Name.toLowerCase(); %>
+
+                <% if (
+                    categoryName === desiredOrder[d] ||
+                    (desiredOrder[d] === 'starter' && categoryName === 'appetizer')
+                ) { %>
+
+                    <div class="menu-row">
+                        <div class="menu-side-image">
+                            <% if (categoryName === 'starter' || categoryName === 'appetizer') { %>
+                                <img src="/images/french-onion-soup.png" alt="Appetizers" class="side-menu-img">
+                            <% } else if (categoryName === 'entree') { %>
+                                <img src="/images/pasta.png" alt="Entrees" class="side-menu-img">
+                            <% } else if (categoryName === 'dessert') { %>
+                                <img src="/images/honey-cake.png" alt="Desserts" class="side-menu-img">
+                            <% } else if (categoryName === 'drink') { %>
+                                <img src="/images/icead-tea.png" alt="Drinks" class="side-menu-img">
                             <% } %>
-                        <% } %>
-                        <br>
+                        </div>
+
+                        <div class="menu-card-vertical">
+                            <h2>
+                                <% if (categoryName === 'starter' || categoryName === 'appetizer') { %>
+                                    Appetizers
+                                <% } else if (categoryName === 'entree') { %>
+                                    Entrees
+                                <% } else if (categoryName === 'dessert') { %>
+                                    Desserts
+                                <% } else if (categoryName === 'drink') { %>
+                                    Drinks
+                                <% } %>
+                            </h2>
+
+                            <ul>
+                                <% for (let j = 0; j < menuItems.length; j++) { %>
+                                    <% if (menuItems[j].Category_ID == categories[i].Category_ID) { %>
+                                        <li>
+                                            <span><%= menuItems[j].Name %></span>
+                                            <span>$<%= menuItems[j].Price.toFixed(2) %></span>
+                                        </li>
+                                    <% } %>
+                                <% } %>
+                            </ul>
+                        </div>
+                    </div>
+
                 <% } %>
-        </div>
+            <% } %>
+        <% } %>
+    </div>
+
+    <div class="menu-bottom-cta">
+        <a href="/order" class="menu-order-btn secondary">Place Your Order</a>
     </div>
 </div>
+
 <%- include('partials/footer') %>
