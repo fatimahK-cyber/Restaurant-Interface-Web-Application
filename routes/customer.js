@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const connection = require('../db');
 
+// GET /customer route to display customer information
 router.get('/', (req, res, next) => {
 
     const get_customers_query = 'SELECT Name, Customer_ID, Email, Phone, Address FROM Customer;';
