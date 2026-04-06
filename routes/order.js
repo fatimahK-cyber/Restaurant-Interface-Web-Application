@@ -174,7 +174,8 @@ router.post('/', (req, res, next) => { // Step 5: Redirect to confirmation page
 GET /order/management middleware chain:
 1) Fetch the total cost, order ID, order type, creation timestamp, completion timestamp, customer name, employee name, and order status for all order records in the database.
 2) Fetch the each ordered menu item name, quantity, and order ID from the database.
-3) Render the order management page with the order data from steps 1 and 2.
+3) Fetch employee names and their IDs from the database.
+4) Render the order management page with the order data from steps 1 and 2.
 */
 router.get('/management', (req, res, next) => {  // Fetch the total cost, order ID, order type, creation timestamp, completion timestamp, customer name, employee name, and order status for all order records in the database.
   const get_order_information_query = `SELECT 
@@ -225,11 +226,28 @@ router.get('/management', (req, res, next) => { // Step 2: Fetch the each ordere
 
 });
 
+router.get('/management', (req, res, next) => { // Step 3: Fetch employee names and their IDs from the database.
+  const get_employees_query = 'SELECT Name, Employee_ID FROM employee;';
+  connection.query(get_employees_query, (err, result) => {
+    if (err) {
+      console.error('Error fetching employees for management:', err);
+      return next(err);
+    }
+    let orders = req.context.orders;
+    let order_items = req.context.order_items;
+    req.context = { orders: orders, order_items: order_items, employees: result };
+    console.log('Fetched employees for management:', result);
+    return next();
+    
+  });
+});
+
 router.get('/management', (req, res, next) => { // Step 3: Render the order management page with the order data from step 1 and 2
   res.render('order_manager', {
     title: 'Manage Orders',
     orders: req.context.orders,
-    orderItems: req.context.order_items
+    orderItems: req.context.order_items,
+    employees: req.context.employees
   });
 });
 
@@ -241,6 +259,8 @@ PATCH /order/management middleware chain:
 4) Render management page with updated order list
 */
 router.post('/management/:orderId', (req, res, next) => { // Step 1: Fetch employee
+  console.log('Received order update for order ID:', req.params.orderId);
+  console.log('Request body:', req.body);
   const get_employees_query = 'SELECT Name, Employee_ID FROM employee LIMIT 1';
   connection.query(get_employees_query, (err, result) => {
     if (err) {
@@ -255,9 +275,10 @@ router.post('/management/:orderId', (req, res, next) => { // Step 1: Fetch emplo
 router.post('/management/:orderId', (req, res, next) => { // Step 2: Update order status
   const orderId = req.params.orderId;
   const newStatus = req.body.status;
+  const assignedEmployeeId = req.body.employee;
 
   const updateOrderQuery = 'UPDATE `order` SET Status = ?, Employee_ID = ? WHERE Order_ID = ?';
-  connection.query(updateOrderQuery, [newStatus, req.context.employees[0].Employee_ID, orderId], (err, result) => {
+  connection.query(updateOrderQuery, [newStatus, assignedEmployeeId, orderId], (err, result) => {
     if (err) {
       console.error('Error updating order:', err);
       return next(err);
@@ -284,6 +305,7 @@ router.post('/management/:orderId', (req, res, next) => { // Step 3: Update comp
 
 router.post('/management/:orderId', (req, res, next) => { // Step 4: Redirect back to management page
   res.redirect('/order/management');
+  return;
 });
 
 // GET track order page + optional lookup

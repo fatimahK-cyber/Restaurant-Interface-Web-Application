@@ -12,8 +12,9 @@
         <th>Type</th>
         <th>Total</th>
         <th>Created At</th>
-        <th>Updated At</th>
+        <th>Completed At</th>
         <th>Status</th>
+        <th>Assigned Employee</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -36,13 +37,21 @@
           <td><%= order.Creation_Timestamp.toLocaleString() %></td>
           <td><%= order.Completion_Timestamp ? order.Completion_Timestamp.toLocaleString() : 'N/A' %></td>
           <td><%= order.Status %></td>
+          <td><%= order.Employee_Name || 'Not Assigned' %></td>
           <td>
             <form action="/order/management/<%= order.Order_ID %>" method="POST">
               <select name="status" class="form-select form-select-sm d-inline w-auto">
-                <option>Pending</option>
-                <option>In Progress</option>
-                <option>Completed</option>
-                <option>Cancelled</option>
+                <option <% if (order.Status === 'Pending') { %> selected <% } %>>Pending</option>
+                <option <% if (order.Status === 'In Progress') { %> selected <% } %>>In Progress</option>
+                <option <% if (order.Status === 'Completed') { %> selected <% } %>>Completed</option>
+                <option <% if (order.Status === 'Cancelled') { %> selected <% } %>>Cancelled</option>
+              </select> 
+              <select name="employee" class="form-select form-select-sm d-inline w-auto">
+                <% employees.forEach(employee => { %>
+                  <option value="<%= employee.Employee_ID %>">
+                    <%= employee.Name %>
+                  </option>
+                <% }) %>
               </select>
               <button class="btn btn-sm btn-primary">Update</button>
             </form>
