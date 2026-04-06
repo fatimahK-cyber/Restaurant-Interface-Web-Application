@@ -1,6 +1,7 @@
 const mysql = require('mysql');
 require('dotenv').config();
 
+
 const connection = mysql.createConnection({
   host: process.env.DB_HOSTNAME,
   user: process.env.USER_ID,
@@ -11,7 +12,10 @@ const connection = mysql.createConnection({
   }
 });
 
-/* Local database connection for offline development and testing 
+
+
+// Local database connection for offline development and testing 
+/*
 const connection = mysql.createConnection({
   host: process.env.DB_HOSTNAME_LOCAL,
   user: process.env.USER_ID_LOCAL,
