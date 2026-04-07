@@ -318,6 +318,21 @@ router.get('/track', (req, res, next) => {
   });
 });
 
+router.post('/cancel', (req, res, next) => {
+  const orderId = req.body.orderId;
+
+  const query = "UPDATE `order` SET Status = 'Cancelled' WHERE Order_ID = ?";
+
+  connection.query(query, [orderId], (err, result) => {
+    if (err) {
+      console.error('Error cancelling order:', err);
+      return next(err);
+    }
+
+    res.redirect(`/order/track?orderId=${orderId}`);
+  });
+});
+
 // GET confirmation page
 router.get('/confirmation', (req, res, next) => {
   const orderId = req.query.orderId;

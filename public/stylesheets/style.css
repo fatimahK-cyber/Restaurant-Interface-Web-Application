@@ -455,6 +455,7 @@ footer {
     margin-top: 36px;
 }
 
+
 @media (max-width: 900px) {
     .menu-row {
         flex-direction: column;
@@ -469,4 +470,18 @@ footer {
     .menu-title {
         font-size: 3rem;
     }
+}
+
+.btn-danger {
+    background: #ff3b30;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.btn-danger:hover {
+    background: #e12d22;
+    transform: translateY(-1px);
 }

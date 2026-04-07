@@ -23,6 +23,14 @@
         <a href="/menu" class="btn btn-primary">Back to Menu</a>
         <a href="/order" class="btn btn-success">Place Another Order</a>
     </div>
+    
+    <% if (order) { %>
+    <form action="/order/cancel" method="POST" style="display:inline;">
+        <input type="hidden" name="orderId" value="<%= order.Order_ID %>">
+        <button type="submit" class="btn btn-danger">Cancel Order</button>
+    </form>
+<% } %>
 </div>
+
 
 <%- include('partials/footer') %>
