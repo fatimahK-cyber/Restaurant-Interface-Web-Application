@@ -36,6 +36,11 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/css', express.static(path.join(__dirname, '/node_modules/bootstrap/dist/css')));
 
+app.use((req, res, next) => {
+  console.log(`Received ${req.method} request for ${req.url} at ${new Date().toISOString()}`);
+  next();
+}); 
+
 app.use('/', indexRouter);
 app.use('/order', orderRouter);
 app.use('/menu', menuRouter);

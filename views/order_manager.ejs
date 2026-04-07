@@ -1,8 +1,5 @@
 <%- include('partials/header') %>
 <%- include('partials/navbar') %>
-<br>
-Manage and resolve customer orders here. 
-<br>
 
 <div class="container mt-4">
   <h4>Manage Orders</h4>
@@ -10,10 +7,14 @@ Manage and resolve customer orders here.
     <thead class="table-dark">
       <tr>
         <th>Order ID</th>
+        <th>Order Items</th>
         <th>Customer</th>
         <th>Type</th>
         <th>Total</th>
+        <th>Created At</th>
+        <th>Completed At</th>
         <th>Status</th>
+        <th>Assigned Employee</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -21,17 +22,36 @@ Manage and resolve customer orders here.
       <% orders.forEach(order => { %>
         <tr>
           <td><%= order.Order_ID %></td>
+          <td>
+            <ul>
+              <% for (let item of orderItems) { %>
+                <% if (item.Order_ID === order.Order_ID) { %>
+                  <li><%= item.Name %> x <%= item.Quantity %></li>
+                <% } %>
+              <% } %>
+            </ul>
+          </td>
           <td><%= order.Customer_Name %></td>
           <td><%= order.Type %></td>
-          <td>$<%= order.Total %></td>
+          <td>$<%= order.Order_Total %></td>
+          <td><%= order.Creation_Timestamp.toLocaleString() %></td>
+          <td><%= order.Completion_Timestamp ? order.Completion_Timestamp.toLocaleString() : 'N/A' %></td>
           <td><%= order.Status %></td>
+          <td><%= order.Employee_Name || 'Not Assigned' %></td>
           <td>
             <form action="/order/management/<%= order.Order_ID %>" method="POST">
               <select name="status" class="form-select form-select-sm d-inline w-auto">
-                <option>Pending</option>
-                <option>In Progress</option>
-                <option>Completed</option>
-                <option>Cancelled</option>
+                <option <% if (order.Status === 'Pending') { %> selected <% } %>>Pending</option>
+                <option <% if (order.Status === 'In Progress') { %> selected <% } %>>In Progress</option>
+                <option <% if (order.Status === 'Completed') { %> selected <% } %>>Completed</option>
+                <option <% if (order.Status === 'Cancelled') { %> selected <% } %>>Cancelled</option>
+              </select> 
+              <select name="employee" class="form-select form-select-sm d-inline w-auto">
+                <% employees.forEach(employee => { %>
+                  <option value="<%= employee.Employee_ID %>">
+                    <%= employee.Name %>
+                  </option>
+                <% }) %>
               </select>
               <button class="btn btn-sm btn-primary">Update</button>
             </form>

@@ -1,16 +1,8 @@
-console.log('TESTING 123');
 var express = require('express');
 var router = express.Router();
 const connection = require('../db');
 
-console.log('ORDER ROUTES FILE LOADED FROM:', __filename);
-
-router.use((req, res, next) => {
-  console.log(`Received ${req.method} request for ${req.url} at ${new Date().toISOString()}`);
-  next();
-}); 
-
-/* Middleware function to fetch menu items and their categories from the database, and store in req.context for downstream handlers */
+/* Middleware function to fetch menu items and their categories from the database, and store in req.context for downstream handlers. */
 function get_menu_items(req, res, next) {
   const get_menu_items_query = 'SELECT mi.Name AS Name, c.Name AS Category, mi.Menu_Item_ID AS Item_ID FROM Menu_Item AS mi JOIN Category AS c ON mi.Category_ID = c.Category_ID;';
 
@@ -33,12 +25,12 @@ function get_menu_items(req, res, next) {
 
 /*
 GET /order middleware chain:
-1) Fetch menu items and their categories from the database
-2) Render order submission page with menu items and categories
+1) Fetch menu items and their categories from the database.
+2) Render order submission page with menu items and categories.
 */
-router.get('/', get_menu_items);
+router.get('/', get_menu_items); // Step 1: Fetch menu items and their categories from the database.
 
-router.get('/', (req, res, next) => {
+router.get('/', (req, res, next) => { // Step 2: Render order submission page with menu items and categories.
   res.render('order_submission', { 
     title: 'Make an Order',
     menu_items: req.context.menuItems 
@@ -47,13 +39,13 @@ router.get('/', (req, res, next) => {
 
 /* 
 POST /order middleware chain:
-1) Check customer existance and insert if new
-2) Insert order with customer ID from step 1
-3) Fetch menu item names and IDs
-4) Insert order items with order ID from step 2 and menu item IDs from step 3
-5) Redirect to confirmation page with order ID from step 2
+1) Check customer existance and insert if new.
+2) Insert order with customer ID from step 1.
+3) Fetch menu item names and IDs.
+4) Insert order items with order ID from step 2 and menu item IDs from step 3.
+5) Redirect to confirmation page with order ID from step 2.
 */
-router.post('/', (req, res, next) => { // Step 1: Check customer existance and insert if new
+router.post('/', (req, res, next) => { // Step 1: Check customer existance and insert if new.
   console.log('Received order data:', req.body);
 
   try {
@@ -110,7 +102,7 @@ router.post('/', (req, res, next) => { // Step 1: Check customer existance and i
   }
 });
 
-router.post('/', (req, res, next) => { // Step 2: Insert order with customer ID from step 1
+router.post('/', (req, res, next) => { // Step 2: Insert order with customer ID from step 1.
   const customerId = req.context.customerId;
   console.log('Processing order for customer ID:', customerId);
 
@@ -140,9 +132,9 @@ let order = {
   );
 });
 
-router.post('/', get_menu_items); // Step 3: Fetch menu item names and IDs
+router.post('/', get_menu_items); // Step 3: Fetch menu item names and IDs.
 
-router.post('/', (req, res, next) => { // Step 4: Insert order items
+router.post('/', (req, res, next) => { // Step 4: Insert order items.
     let itemNames = [].concat(req.body['ItemName[]']);
     let itemQtys = [].concat(req.body['ItemQty[]']);
     let insert_order_item_query = 'INSERT INTO `order_item` (Quantity, Order_ID, Menu_Item_ID) VALUES (?, ?, ?)'
@@ -165,21 +157,35 @@ router.post('/', (req, res, next) => { // Step 4: Insert order items
     return next(); 
 });
 
-router.post('/', (req, res, next) => { // Step 5: Redirect to confirmation page
+router.post('/', (req, res, next) => { // Step 5: Redirect to confirmation page.
   console.log('Finalizing order with ID:', req.context.orderId);
  res.redirect(`/order/confirmation?orderId=${req.context.orderId}`);
 }); 
 
 /*
 GET /order/management middleware chain:
-1) Fetch the order ID, order item names, order item quantity, order type, order status, creation timestamps, completion timestamp, customer name, and employee name for all orders from the database
-2) Calculate the total cost for each order 
-2) Render the order management page with the order data from step 1
+1) Fetch the total cost, order ID, order type, creation timestamp, completion timestamp, customer name, employee name, and order status for all order records in the database.
+2) Fetch the name, quantity, and corresponding order ID of each ordered menu item from the database.
+3) Fetch employee names and their IDs from the database.
+4) Render the order management page with the order data from steps 1, 2, and 3.
 */
-router.get('/management', (req, res, next) => { // Step 1: Fetch the order ID, order item names, order types, order status, creation timestamps, completion timestamp, customer name, and employee name for all orders from the database
-  const get_order_information_query = `SELECT o.Order_ID, c.Name AS Customer_Name, o.Type, o.Status
-    FROM \`order\` AS o
-    JOIN customer AS c ON o.Customer_ID = c.Customer_ID;`;
+router.get('/management', (req, res, next) => {  // Step 1: Fetch the total cost, order ID, order type, creation timestamp, completion timestamp, customer name, employee name, and order status for all order records in the database.
+  const get_order_information_query = `SELECT 
+    SUM(oi.Quantity * mi.Price) AS Order_Total,
+    o.Order_ID,
+    o.Type,
+    o.Status,
+    o.Creation_Timestamp,
+    o.Completion_Timestamp,
+    c.Name AS Customer_Name,
+    e.Name AS Employee_Name
+    FROM 
+    \`order\` AS o JOIN order_item AS oi ON o.Order_ID = oi.Order_ID
+    JOIN Menu_Item AS mi ON oi.Menu_Item_ID = mi.Menu_Item_ID
+    JOIN customer AS c ON c.Customer_ID = o.Customer_ID
+    LEFT JOIN Employee AS e  ON e.Employee_ID = o.Employee_ID
+    GROUP BY 
+    o.Order_ID;`;
 
   connection.query(get_order_information_query, (err, results) => {
     if (err) {
@@ -192,52 +198,57 @@ router.get('/management', (req, res, next) => { // Step 1: Fetch the order ID, o
   });
 });
 
-router.get('/management', (req, res, next) => { // Step 2: Calculate the total cost for each order
-  const get_order_totals_query = `SELECT SUM(oi.Quantity * mi.Price) AS Order_Total, o.Order_ID AS Order_ID FROM \`order\` AS o JOIN order_item AS oi JOIN Menu_Item AS mi ON o.Order_ID = oi.Order_ID AND oi.Menu_Item_ID = mi.Menu_Item_ID GROUP BY o.Order_ID;`;
+router.get('/management', (req, res, next) => { // Step 2:Fetch the name, quantity, and corresponding order ID of each ordered menu item from the database.
+  const get_order_items_query = `SELECT mi.Name, oi.Order_ID, oi.Quantity FROM Menu_Item AS mi JOIN Order_Item AS oi ON mi.Menu_Item_ID=oi.Menu_Item_ID ORDER BY Order_ID;`;
   
-  connection.query(get_order_totals_query, (err, results) => {
+  connection.query(get_order_items_query, (err, results) => {
     if (err) {
-      console.error('Error fetching order totals for management:', err);
+      console.error('Error fetching order items for management:', err);
       return next(err);
     }  
     let orders = req.context.orders;
-    req.context = { orders: orders, orderTotals: results };
-    console.log('Fetched order totals for management:', results);
+    req.context = { orders: orders, order_items: results };
+    console.log('Fetched order items for management:', results);
     return next();
   });
 
 });
 
-/* step 3: fixed the total appearing, by merging the order totals with the orders in req.context before rendering the page */
-
-router.get('/management', (req, res, next) => {
-  let orders = req.context.orders;
-  let totals = req.context.orderTotals;
-
-  for (let i = 0; i < orders.length; i++) {
-    for (let j = 0; j < totals.length; j++) {
-      if (orders[i].Order_ID === totals[j].Order_ID) {
-        orders[i].Total = parseFloat(totals[j].Order_Total).toFixed(2);
-        break;
-      }
+router.get('/management', (req, res, next) => { // Step 3: Fetch employee names and their IDs from the database.
+  const get_employees_query = 'SELECT Name, Employee_ID FROM employee;';
+  connection.query(get_employees_query, (err, result) => {
+    if (err) {
+      console.error('Error fetching employees for management:', err);
+      return next(err);
     }
-  }
+    let orders = req.context.orders;
+    let order_items = req.context.order_items;
+    req.context = { orders: orders, order_items: order_items, employees: result };
+    console.log('Fetched employees for management:', result);
+    return next();
+    
+  });
+});
 
+router.get('/management', (req, res, next) => { // Step 4: Render the order management page with the order data from steps 1, 2, and 3.
   res.render('order_manager', {
     title: 'Manage Orders',
-    orders: orders,
-    orderTotals: totals
+    orders: req.context.orders,
+    orderItems: req.context.order_items,
+    employees: req.context.employees
   });
 });
 
 /*
-PATCH order middleware chain:
+POST /order/management middleware chain:
 1) Fetch the employee names and their IDs from the database and store in req.context for downstream handlers.
-2) Update order status in the database based on order ID from URL parameter, new status from the request body, and assigned employee name from the request body
-3) Update the completion timestamp if status is changed to "Completed"
-4) Render management page with updated order list
+2) Update order status in the database based on order ID from URL parameter, new status from the request body, and assigned employee name from the request body.
+3) Update the completion timestamp if status is changed to "Completed".
+4) Render management page with updated order list.
 */
-router.post('/management/:orderId', (req, res, next) => { // Step 1: Fetch employee
+router.post('/management/:orderId', (req, res, next) => { // Step 1: Fetch the employee names and their IDs from the database and store in req.context for downstream handlers.
+  console.log('Received order update for order ID:', req.params.orderId);
+  console.log('Request body:', req.body);
   const get_employees_query = 'SELECT Name, Employee_ID FROM employee LIMIT 1';
   connection.query(get_employees_query, (err, result) => {
     if (err) {
@@ -249,12 +260,13 @@ router.post('/management/:orderId', (req, res, next) => { // Step 1: Fetch emplo
   });
 });
 
-router.post('/management/:orderId', (req, res, next) => { // Step 2: Update order status
+router.post('/management/:orderId', (req, res, next) => { // Step 2: Update order status in the database based on order ID from URL parameter, new status from the request body, and assigned employee name from the request body.
   const orderId = req.params.orderId;
   const newStatus = req.body.status;
+  const assignedEmployeeId = req.body.employee;
 
   const updateOrderQuery = 'UPDATE `order` SET Status = ?, Employee_ID = ? WHERE Order_ID = ?';
-  connection.query(updateOrderQuery, [newStatus, req.context.employees[0].Employee_ID, orderId], (err, result) => {
+  connection.query(updateOrderQuery, [newStatus, assignedEmployeeId, orderId], (err, result) => {
     if (err) {
       console.error('Error updating order:', err);
       return next(err);
@@ -263,7 +275,7 @@ router.post('/management/:orderId', (req, res, next) => { // Step 2: Update orde
   });
 });
 
-router.post('/management/:orderId', (req, res, next) => { // Step 3: Update completion timestamp if completed
+router.post('/management/:orderId', (req, res, next) => { // Step 3: Update the completion timestamp if status is changed to "Completed"
   const orderId = req.params.orderId;
   if (req.body.status == 'Completed') {
     const updateCompletionTimestampQuery = 'UPDATE `order` SET Completion_Timestamp = ? WHERE Order_ID = ?';
@@ -279,10 +291,12 @@ router.post('/management/:orderId', (req, res, next) => { // Step 3: Update comp
   }
 });
 
-router.post('/management/:orderId', (req, res, next) => { // Step 4: Redirect back to management page
+router.post('/management/:orderId', (req, res, next) => { // Step 4: Render management page with updated order list.
   res.redirect('/order/management');
+  return;
 });
-// GET track order page + optional lookup
+
+// GET /order/track route for customers to track their order status and details
 router.get('/track', (req, res, next) => {
   const orderId = req.query.orderId || req.session.lastOrderId;
 
@@ -318,6 +332,7 @@ router.get('/track', (req, res, next) => {
   });
 });
 
+<<<<<<< HEAD
 router.post('/cancel', (req, res, next) => {
   const orderId = req.body.orderId;
 
@@ -334,6 +349,9 @@ router.post('/cancel', (req, res, next) => {
 });
 
 // GET confirmation page
+=======
+// GET /order/confirmation route
+>>>>>>> abf6f80ddc51abc4fa505c3b7512322cd796c0ce
 router.get('/confirmation', (req, res, next) => {
   const orderId = req.query.orderId;
 
