@@ -332,7 +332,6 @@ router.get('/track', (req, res, next) => {
   });
 });
 
-<<<<<<< HEAD
 router.post('/cancel', (req, res, next) => {
   const orderId = req.body.orderId;
 
@@ -349,9 +348,6 @@ router.post('/cancel', (req, res, next) => {
 });
 
 // GET confirmation page
-=======
-// GET /order/confirmation route
->>>>>>> abf6f80ddc51abc4fa505c3b7512322cd796c0ce
 router.get('/confirmation', (req, res, next) => {
   const orderId = req.query.orderId;
 
